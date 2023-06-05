@@ -58,14 +58,12 @@ public:
 
 class Locations{
 public:
-	std::vector<std::string> raw_location;
-	std::string 			root;
-	std::string 			directive;
-	std::string 			returned;
-	std::string 			upload_enable;
-	std::string				upload_store;
-
-
+	std::vector<std::string> 	raw_location;
+	std::string 				root;
+	std::string 				directive;
+	std::string 				returned;
+	std::string 				upload_enable;
+	std::string					upload_store;
 };
 
 std::vector<std::string> split(const std::string& str, char delimiter);

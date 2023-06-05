@@ -14,11 +14,13 @@ int	main(int argc, char *argv[])
 	
 	Config config;
 	if (argc == 1)
-		config.parse("../conf/default.conf");
-	else{
+		config.parse("conf/default.conf");
+	else
 		config.parse(argv[1]);
-	}
+
 	std::cout << "here is ittt\n";
 	webServer server(config.servers);
+
+
 	return 0;
 }

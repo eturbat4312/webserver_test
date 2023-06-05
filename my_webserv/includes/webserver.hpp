@@ -25,4 +25,10 @@ public:
 	webServer(std::vector<Servers> servers);
 	~webServer();
 
+	int socket_fd();
+	int address_socket();
+	int	bind_socket();
+	int	listen_socket();
+
+
 };
