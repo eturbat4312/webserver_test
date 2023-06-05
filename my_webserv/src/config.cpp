@@ -154,24 +154,31 @@ void	Config::parse_servers(Servers& server){
 }
 
 void	Config::parse(std::string filename){
+	//Open file
 	std::ifstream fd;
 	fd.open(filename.c_str());
-	std::vector<std::string> vector_line;
-	std::string line;
-	if (!fd.is_open()){
-		throw std::invalid_argument("file open failed");
-	}
+	// if (!fd.is_open()){
+	// 	throw std::invalid_argument("file open failed");
+	// }
+
+	//Read file
+	std::vector<std::string> 	vector_line;
+	std::string 				line;
 	while (getline(fd, line))
 		if (!line.empty())
 			vector_line.push_back(line.append(" \n"));
+	fd.close(); //we need to close it no ?
+
+	//Parse file
 	parse_bracket(vector_line);
-	
 	split_servers(vector_line, servers);
 	//std::cout << servers.size() << std::endl;
+
+//  std::cout << servers.size() << std::endl; 
 	if (servers.size() < 1)
 		throw std::invalid_argument("No server blocks");
+
 	std::vector<Servers>::iterator it;
-	
 	for (it = servers.begin(); it != servers.end(); it++)
 	{
 		parse_servers(*it);
