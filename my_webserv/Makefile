@@ -1,31 +1,27 @@
-SRCS = src/main.cpp src/config.cpp src/location.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp 
-OBJS = ${SRCS:.c=.o}
-HEADER = includes
-NAME = webserver
-RM = rm -f
-CFLAGS = -Wall -Werror -Wextra
-GCC = c++ -g
-CC = c++ -g -lreadline
+NAME = web
 
+SRC = src/main.cpp src/config.cpp src/location.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp 
 
-FLAGS += -I$(HOME)/.brew/opt/readline/include
-READLINE += -L$(HOME)/.brew/opt/readline/lib
+CC 		= c++
 
+FLAGS	= -Wall -Wextra -Werror -std=c++98
 
-.c.o:
-			${GCC} ${CFLAGS} -I ${HEADER} -c $< -o ${<:.c=.o}
+OBJS 	= $(SRC:.cpp=.o)
 
-${NAME}:	${OBJS}	
-				${CC} ${OBJS} ${CFLAGS} ${FLAGS} ${READLINE} -o ${NAME}
+$(NAME): $(OBJS)
+	$(CC) $(FLAGS) $(SRC) -o $(NAME)
 
-all: $(NAME)
+all: $(NAME) $(OBJS)
+
+%.o: %.c
+		$(CC) $(FLAGS) -c $< -o $@
 
 clean:
-			${RM} ${OBJS}
+	rm -rf $(SRC:.cpp=.o)
 
-fclean:		clean
-			${RM} ${NAME}
+fclean: clean
+	rm -rf $(NAME)
 
-re:			fclean all
+re: fclean all
 
 .PHONY: all clean fclean re
