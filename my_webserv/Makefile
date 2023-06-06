@@ -4,7 +4,7 @@ SRC = src/main.cpp src/config.cpp src/location.cpp src/serverdata.cpp src/server
 
 CC 		= c++
 
-FLAGS	= -Wall -Wextra -Werror -std=c++98
+FLAGS	= -Wall -Wextra -Werror
 
 OBJS 	= $(SRC:.cpp=.o)
 
