@@ -1,31 +1,26 @@
-SRCS = src/main.cpp src/config.cpp src/location.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp 
-OBJS = ${SRCS:.c=.o}
-HEADER = includes
 NAME = webserver
-RM = rm -f
-CFLAGS = -Wall -Werror -Wextra
-GCC = c++ -g
-CC = c++ -g -lreadline
+SRCS = src/config.cpp src/location.cpp src/main.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp
 
 
-FLAGS += -I$(HOME)/.brew/opt/readline/include
-READLINE += -L$(HOME)/.brew/opt/readline/lib
+OBJS	= $(SRCS:.cpp=.o)
+CC		= c++
+CFLAGS	= -Wall -Wextra -Werror -std=c++98
+RM		= rm -f
 
+all		:	$(NAME)
 
-.c.o:
-			${GCC} ${CFLAGS} -I ${HEADER} -c $< -o ${<:.c=.o}
+.cpp.o	:
+			$(CC) $(CFLAGS) -c $< -o $(<:.cpp=.o)
 
-${NAME}:	${OBJS}	
-				${CC} ${OBJS} ${CFLAGS} ${FLAGS} ${READLINE} -o ${NAME}
+$(NAME)	:	$(OBJS)
+			$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
-all: $(NAME)
+clean	:
+			$(RM) $(OBJS)
 
-clean:
-			${RM} ${OBJS}
+fclean	:
+			$(RM) $(NAME) $(OBJS)
 
-fclean:		clean
-			${RM} ${NAME}
+re		: fclean all
 
-re:			fclean all
-
-.PHONY: all clean fclean re
+.PHONY	: all clean fclean re
