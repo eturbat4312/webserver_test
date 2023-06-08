@@ -157,9 +157,9 @@ void	Config::parse(std::string filename){
 	//Open file
 	std::ifstream fd;
 	fd.open(filename.c_str());
-	if (!fd.is_open()){
-		throw std::invalid_argument("file open failed");
-	}
+	// if (!fd.is_open()){
+	// 	throw std::invalid_argument("file open failed");
+	// }
 
 	//Read file
 	std::vector<std::string> 	vector_line;
@@ -174,6 +174,7 @@ void	Config::parse(std::string filename){
 	split_servers(vector_line, servers);
 	//std::cout << servers.size() << std::endl;
 
+//  std::cout << servers.size() << std::endl; 
 	if (servers.size() < 1)
 		throw std::invalid_argument("No server blocks");
 

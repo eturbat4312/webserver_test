@@ -1,27 +1,26 @@
-NAME = web
+NAME = webserver
+SRCS = src/config.cpp src/location.cpp src/main.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp
 
-SRC = src/main.cpp src/config.cpp src/location.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp 
 
-CC 		= c++
+OBJS	= $(SRCS:.cpp=.o)
+CC		= c++
+CFLAGS	= -Wall -Wextra -Werror -std=c++98
+RM		= rm -f
 
-FLAGS	= -Wall -Wextra -Werror
+all		:	$(NAME)
 
-OBJS 	= $(SRC:.cpp=.o)
+.cpp.o	:
+			$(CC) $(CFLAGS) -c $< -o $(<:.cpp=.o)
 
-$(NAME): $(OBJS)
-	$(CC) $(FLAGS) $(SRC) -o $(NAME)
+$(NAME)	:	$(OBJS)
+			$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
-all: $(NAME) $(OBJS)
+clean	:
+			$(RM) $(OBJS)
 
-%.o: %.c
-		$(CC) $(FLAGS) -c $< -o $@
+fclean	:
+			$(RM) $(NAME) $(OBJS)
 
-clean:
-	rm -rf $(SRC:.cpp=.o)
+re		: fclean all
 
-fclean: clean
-	rm -rf $(NAME)
-
-re: fclean all
-
-.PHONY: all clean fclean re
+.PHONY	: all clean fclean re

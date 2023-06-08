@@ -37,11 +37,17 @@ int webServer::socket_fd(Servers *server)
 
 int webServer::address_socket(Servers *server)
 {
-	sockaddr_in serverAddress{}; // Zero-intialize the address
-	serverAddress.sin_family = AF_INET; // IPv4
-	serverAddress.sin_addr.s_addr = INADDR_ANY; // Bind to any address
-	serverAddress.sin_port = htons(server->_port); // Replace with the desired port from the config
-	server->_address = serverAddress;
+	(void)server;
+	std::cout << "port: " << this->_serv_vector[0]._port << std::endl;
+	for (size_t i = 0; i < this->_serv_vector.size(); i++)
+	{
+		sockaddr_in serverAddress; // Zero-intialize the address
+		serverAddress.sin_family = AF_INET; // IPv4
+		serverAddress.sin_addr.s_addr = INADDR_ANY; // Bind to any address
+		std::cout << "port: " << this->_serv_vector[i]._port << std::endl;
+		serverAddress.sin_port = htons(this->_serv_vector[i]._port); // Replace with the desired port from the config
+		this->_serv_vector[i]._address = serverAddress;
+	}
 	return EXIT_SUCCESS;
 }
 

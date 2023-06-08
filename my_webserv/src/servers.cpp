@@ -160,6 +160,7 @@ void	Servers::checkSyntaxError(std::vector<std::string>& server_info){
 		std::vector<std::string> info = split(*it, ' ');
 		checkSemicolone(info);
 		enterData(info);
+		// std::cout << "1111\n";
 	}
 
 }
