@@ -31,6 +31,7 @@ int webServer::socket_fd(Servers *server)
 		return EXIT_FAILURE;
 	}
 	server->socket_fd = serverSocket;
+	fcntl(server->socket_fd, F_SETFL, O_NONBLOCK); // set socket to non-blocking
 	return EXIT_SUCCESS;
 }
 
@@ -133,51 +134,36 @@ int webServer::poll_socket(Servers *server)
 
 int webServer::poll_loop()
 {
-	std::cout << "poll init" << std::endl;
-	if (poll_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-
-	std::cout << "poll loop" << std::endl;
+	poll_socket(&this->_serv_vector[0]);
 	while (true)
 	{
-		std::cout << "accept_connection" << std::endl;
-		if (accept_connection(&this->_serv_vector[0]) == EXIT_FAILURE)
+		int poll_count = poll(&this->_fds[0], this->_fds.size(), 1);
+		if (poll_count < 0)
+		{
+			std::cerr << "Failed to poll sockets" << std::endl;
 			return EXIT_FAILURE;
-		std::cout << "read_socket" << std::endl;
-		if (read_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
-		std::cout << "write_socket" << std::endl;
-		if (write_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
-		std::cout << "close_socket" << std::endl;
-		if (close_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
-
-		// int poll_count = poll(&this->_fds[0], this->_fds.size(), -1);
-		// std::cout << "poll_count: " << poll_count << std::endl;
-		// if (poll_count < 0)
-		// {
-		// 	std::cerr << "Failed to poll sockets" << std::endl;
-		// 	return EXIT_FAILURE;
-		// }
-		// for (size_t i = 0; i < this->_fds.size(); i++)
-		// {
-		// 	if (this->_fds[i].revents & POLLIN)
-		// 	{
-		// 		if (this->_fds[i].fd == this->_serv_vector[i].socket_fd)
-		// 		{
-		// 			std::cout << "i : " << i << std::endl;
-		// 			if (accept_connection(&this->_serv_vector[i]) == EXIT_FAILURE)
-		// 				return EXIT_FAILURE;
-		// 			if (read_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
-		// 				return EXIT_FAILURE;
-		// 			if (write_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
-		// 				return EXIT_FAILURE;
-		// 			if (close_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
-		// 				return EXIT_FAILURE;
-		// 		}
-		// 	}
-		// }
+		}
+		for (size_t i = 0; i < this->_fds.size(); i++)
+		{
+			if (this->_fds[i].revents & POLLIN) // POLLIN = There is data to read
+			{
+				if (this->_fds[i].fd == this->_serv_vector[i].socket_fd)
+				{
+					std::cout << "Accepting new connection" << std::endl;
+					if (accept_connection(&this->_serv_vector[i]) == EXIT_FAILURE)
+						return EXIT_FAILURE;
+					// std::cout << "Reading from socket" << std::endl;
+					// if (read_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
+					// 	return EXIT_FAILURE;
+					std::cout << "Writing to socket" << std::endl;
+					if (write_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
+						return EXIT_FAILURE;
+					std::cout << "Closing socket" << std::endl;
+					if (close_socket(&this->_serv_vector[i]) == EXIT_FAILURE)
+						return EXIT_FAILURE;
+				}
+			}
+		}
 	}
 	return EXIT_SUCCESS;
 }
