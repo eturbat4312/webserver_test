@@ -3,7 +3,7 @@
 
 void Servers::simple_server()
 {
-	_port = 8000;
+	_port = 7000;
 	host = "127.0.0.1";
 	root = "./website";
 	std::cout << "Simple server data creation done\n";

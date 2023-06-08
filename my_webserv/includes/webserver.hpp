@@ -36,7 +36,7 @@ public:
 	int write_socket(Servers *server);
 	int close_socket(Servers *server);
 
-	int poll_socket();
+	int poll_socket(Servers *server);
 	int poll_loop();
 
 	// int get_max_fd();
