@@ -21,23 +21,21 @@ webServer::webServer(std::vector<Servers> servers){
 
 webServer::~webServer(){}
 
-int webServer::socket_fd()
+int webServer::socket_fd(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		int serverSocket = socket(AF_INET, SOCK_STREAM, 0); // AF_INET = IPv4, SOCK_STREAM = TCP, 0 = IP
-		if (serverSocket == -1) {
-			std::cerr << "Failed to create socket" << std::endl;
-			// Handle error
-			return EXIT_FAILURE;
-		}
-		this->_serv_vector[i].socket_fd = serverSocket;
+	int serverSocket = socket(AF_INET, SOCK_STREAM, 0); // AF_INET = IPv4, SOCK_STREAM = TCP, 0 = IP
+	if (serverSocket == -1) {
+		std::cerr << "Failed to create socket" << std::endl;
+		return EXIT_FAILURE;
 	}
+	server->socket_fd = serverSocket;
 	return EXIT_SUCCESS;
 }
 
-int webServer::address_socket()
+
+int webServer::address_socket(Servers *server)
 {
+	(void)server;
 	std::cout << "port: " << this->_serv_vector[0]._port << std::endl;
 	for (size_t i = 0; i < this->_serv_vector.size(); i++)
 	{
@@ -51,94 +49,77 @@ int webServer::address_socket()
 	return EXIT_SUCCESS;
 }
 
-int webServer::bind_socket()
+int webServer::bind_socket(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		if (bind(_serv_vector[i].socket_fd, (struct sockaddr*)&this->_serv_vector[i]._address, sizeof(this->_serv_vector[i]._address)) < 0) {
-			std::cerr << "Failed to bind socket to address" << std::endl;
-			return EXIT_FAILURE;
-		}
+	if (bind(server->socket_fd, (struct sockaddr*)&server->_address, sizeof(server->_address)) < 0) {
+		std::cerr << "Failed to bind socket to address" << std::endl;
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
-int webServer::listen_socket()
+int webServer::listen_socket(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		if (listen(_serv_vector[i].socket_fd, SOMAXCONN) < 0) {
-			std::cerr << "Failed to listen for connections" << std::endl;
-			return EXIT_FAILURE;
-		}
+	if (listen(server->socket_fd, SOMAXCONN) < 0) {
+		std::cerr << "Failed to listen for connections" << std::endl;
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
+
 
 int webServer::start_server()
 {
-	if (socket_fd() == EXIT_FAILURE)
+	if (socket_fd(&this->_serv_vector[0]) == EXIT_FAILURE)
 		return EXIT_FAILURE;
-	if (address_socket() == EXIT_FAILURE)
+	if (address_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
 		return EXIT_FAILURE;
-	if (bind_socket() == EXIT_FAILURE)
+	if (bind_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
 		return EXIT_FAILURE;
-	if (listen_socket() == EXIT_FAILURE)
+	if (listen_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
 		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }
 
-int webServer::accept_connection()
+int webServer::accept_connection(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
+	int addrlen = sizeof(server->_address);
+	int new_socket = accept(server->socket_fd, (struct sockaddr *)&server->_address, (socklen_t*)&addrlen);
+	if (new_socket < 0)
 	{
-		int addrlen = sizeof(this->_serv_vector[i]._address);
-		int new_socket = accept(this->_serv_vector[i].socket_fd, (struct sockaddr *)&this->_serv_vector[i]._address, (socklen_t*)&addrlen);
-		if (new_socket < 0)
-		{
-			std::cerr << "Failed to accept connection" << std::endl;
-			return EXIT_FAILURE;
-		}
-		this->_serv_vector[i].new_socket = new_socket; //line written by copilot byut no idea why
+		std::cerr << "Failed to accept connection" << std::endl;
+		return EXIT_FAILURE;
+	}
+	server->new_socket = new_socket; //line written by copilot byut no idea why
+	return EXIT_SUCCESS;
+}
+
+int webServer::read_socket(Servers *server)
+{
+	int valread = read(server->new_socket, server->buffer, 1024);
+	if (valread < 0)
+	{
+		std::cerr << "Failed to read from socket" << std::endl;
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
-int webServer::read_socket()
+int webServer::write_socket(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
+	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+	int valsend = send(server->new_socket, hello.c_str(), hello.length(), 0);
+	if (valsend < 0)
 	{
-		int valread = read(this->_serv_vector[i].new_socket, this->_serv_vector[i].buffer, 1024);
-		if (valread < 0)
-		{
-			std::cerr << "Failed to read from socket" << std::endl;
-			return EXIT_FAILURE;
-		}
+		std::cerr << "Failed to send message" << std::endl;
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
-int webServer::write_socket()
+int webServer::close_socket(Servers *server)
 {
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-		int valsend = send(this->_serv_vector[i].new_socket, hello.c_str(), hello.length(), 0);
-		if (valsend < 0)
-		{
-			std::cerr << "Failed to send message" << std::endl;
-			return EXIT_FAILURE;
-		}
-	}
-	return EXIT_SUCCESS;
-}
-
-int webServer::close_socket()
-{
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		close(this->_serv_vector[i].new_socket);
-	}
+	close(server->new_socket);
 	return EXIT_SUCCESS;
 }
 
@@ -159,8 +140,8 @@ int webServer::poll_loop()
 	while (true)
 	{
 		std::cout << "poll_loop" << std::endl;
-		accept_connection();
-		write_socket();
+		accept_connection(&this->_serv_vector[0]);
+		write_socket(&this->_serv_vector[0]);
 		// int poll_count = poll(&this->_fds[0], this->_fds.size(), -1);
 		// if (poll_count < 0)
 		// {

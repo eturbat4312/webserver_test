@@ -25,16 +25,16 @@ public:
 	webServer(std::vector<Servers> servers);
 	~webServer();
 
-	int socket_fd();
-	int address_socket();
-	int	bind_socket();
-	int	listen_socket();
+	int socket_fd(Servers *server);
+	int address_socket(Servers *server);
+	int	bind_socket(Servers *server);
+	int	listen_socket(Servers *server);
 	int start_server();
 
-	int accept_connection();
-	int read_socket();
-	int write_socket();
-	int close_socket();
+	int accept_connection(Servers *server);
+	int read_socket(Servers *server);
+	int write_socket(Servers *server);
+	int close_socket(Servers *server);
 
 	int poll_socket();
 	int poll_loop();
