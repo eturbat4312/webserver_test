@@ -1,5 +1,14 @@
 #include "../includes/config.hpp"
 
+
+void Servers::simple_server()
+{
+	_port = 8000;
+	host = "127.0.0.1";
+	root = "./website";
+	std::cout << "Simple server data creation done\n";
+}
+
 void	checkSemicolone(std::vector<std::string>& info){
 	int	semi = 0;
 	//std::cout << "checksemi" << std::endl;
@@ -13,10 +22,13 @@ void	checkSemicolone(std::vector<std::string>& info){
 		}
 	}
 	else
+	{
 		if (!info[0].empty())
 			throw std::invalid_argument("Syntax error: Semiclone missing");
 		if (semi > 1)
 			throw std::invalid_argument("Syntax error: Extra semicolone");
+		throw std::invalid_argument("Syntax error: Semicolone missing");
+	}
 }
 
 int	allcodes(int code){
