@@ -37,17 +37,10 @@ int webServer::socket_fd(Servers *server)
 
 int webServer::address_socket(Servers *server)
 {
-	(void)server;
-	std::cout << "port: " << this->_serv_vector[0]._port << std::endl;
-	for (size_t i = 0; i < this->_serv_vector.size(); i++)
-	{
-		sockaddr_in serverAddress; // Zero-intialize the address
-		serverAddress.sin_family = AF_INET; // IPv4
-		serverAddress.sin_addr.s_addr = INADDR_ANY; // Bind to any address
-		std::cout << "port: " << this->_serv_vector[i]._port << std::endl;
-		serverAddress.sin_port = htons(this->_serv_vector[i]._port); // Replace with the desired port from the config
-		this->_serv_vector[i]._address = serverAddress;
-	}
+	server->_address.sin_family = AF_INET;
+	server->_address.sin_addr.s_addr = inet_addr(server->host.c_str());// need to check host assignment!!!
+	server->_address.sin_port = htons(server->_port);
+	memset(server->_address.sin_zero, '\0', sizeof(server->_address.sin_zero));
 	return EXIT_SUCCESS;
 }
 
@@ -147,12 +140,18 @@ int webServer::poll_loop()
 	std::cout << "poll loop" << std::endl;
 	while (true)
 	{
-
-		accept_connection(&this->_serv_vector[0]);
-		read_socket(&this->_serv_vector[0]);
-		write_socket(&this->_serv_vector[0]);
-		close_socket(&this->_serv_vector[0]);
-
+		std::cout << "accept_connection" << std::endl;
+		if (accept_connection(&this->_serv_vector[0]) == EXIT_FAILURE)
+			return EXIT_FAILURE;
+		std::cout << "read_socket" << std::endl;
+		if (read_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
+			return EXIT_FAILURE;
+		std::cout << "write_socket" << std::endl;
+		if (write_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
+			return EXIT_FAILURE;
+		std::cout << "close_socket" << std::endl;
+		if (close_socket(&this->_serv_vector[0]) == EXIT_FAILURE)
+			return EXIT_FAILURE;
 
 		// int poll_count = poll(&this->_fds[0], this->_fds.size(), -1);
 		// std::cout << "poll_count: " << poll_count << std::endl;

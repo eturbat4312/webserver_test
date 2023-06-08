@@ -4,7 +4,7 @@ SRCS = src/config.cpp src/location.cpp src/main.cpp src/serverdata.cpp src/serve
 
 OBJS	= $(SRCS:.cpp=.o)
 CC		= c++
-CFLAGS	= -Wall -Wextra -Werror -std=c++98
+CFLAGS	= -Wall -Wextra -Werror
 RM		= rm -f
 
 all		:	$(NAME)
