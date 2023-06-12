@@ -27,6 +27,10 @@ struct sockaddr_in Socket::get_address(){
 	return this->_address;
 }
 
+char *Socket::get_buffer(){
+	return static_cast<char *>(this->_buffer);
+}
+
 void Socket::set_socket_fd(int socket_fd){
 	this->_socket_server_fd = socket_fd;
 }

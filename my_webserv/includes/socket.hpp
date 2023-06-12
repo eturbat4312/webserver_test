@@ -49,6 +49,7 @@ class Socket
 		int get_port();
 		std::string get_host();
 		struct sockaddr_in get_address();
+		char *get_buffer();
 
 		void set_socket_fd(int socket_fd);
 		void set_port(int port);
@@ -71,3 +72,4 @@ class Socket
 		int poll_socket();
 		int poll_loop();
 };
+
