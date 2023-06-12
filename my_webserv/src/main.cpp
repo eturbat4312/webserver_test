@@ -1,5 +1,6 @@
 #include "../includes/config.hpp"
 #include "../includes/webserver.hpp"
+#include "../includes/socket.hpp"
 
 int	main(int argc, char *argv[])
 {
@@ -16,10 +17,56 @@ int	main(int argc, char *argv[])
 		servers.push_back(server_test);
 
 		webServer webserver(servers);
-		if (webserver.start_server() == EXIT_FAILURE)
-			return EXIT_FAILURE;
-		std::cout << "Server started" << std::endl;
-		webserver.poll_loop();
+
+		// socket socket();
+		Socket socket(8080, "127.0.0.1");
+		socket.start_server();
+
+		// while (true)
+		// {
+		// 	if (socket.accept_connection() == EXIT_FAILURE)
+		// 		continue;
+
+		// 	std::cout << "Reading from socket" << std::endl;
+		// 	socket.read_socket();
+
+		// 	std::cout << "Writing to socket" << std::endl;
+		// 	std::ifstream file("website/default.html");
+		// 	std::stringstream buffer;
+		// 	buffer << file.rdbuf();
+		// 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
+		// 	socket.write_socket(response);
+
+		// 	std::cout << "Sending response" << std::endl;
+		// 	if (socket.send_response() == EXIT_FAILURE)
+		// 		continue;
+			
+		// 	std::cout << "Closing socket" << std::endl;
+		// 	socket.close_socket();
+		// }
+
+		while (true)
+		{
+			while (socket.poll_loop() == EXIT_FAILURE)
+				continue;
+			std::cout << "Reading from socket" << std::endl;
+			socket.read_socket();
+			
+			std::cout << "Writing to socket" << std::endl;
+			std::ifstream file("website/default.html");
+			std::stringstream buffer;
+			buffer << file.rdbuf();
+			std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
+			socket.write_socket(response);
+
+			std::cout << "Sending response" << std::endl;
+			if (socket.send_response() == EXIT_FAILURE)
+				continue;
+
+			std::cout << "Closing socket" << std::endl;
+			socket.close_socket();
+		}
+		
 
 		return 0;
 	}

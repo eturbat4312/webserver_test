@@ -1,5 +1,5 @@
 NAME = webserver
-SRCS = src/config.cpp src/location.cpp src/main.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp src/methods.cpp
+SRCS = src/config.cpp src/location.cpp src/main.cpp src/serverdata.cpp src/servers.cpp src/webserver.cpp src/methods.cpp src/socket/socket.cpp
 
 
 OBJS	= $(SRCS:.cpp=.o)
