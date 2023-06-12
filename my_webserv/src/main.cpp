@@ -20,53 +20,32 @@ int	main(int argc, char *argv[])
 
 		// socket socket();
 		Socket socket(8080, "127.0.0.1");
-		socket.start_server();
-
-		// while (true)
-		// {
-		// 	if (socket.accept_connection() == EXIT_FAILURE)
-		// 		continue;
-
-		// 	std::cout << "Reading from socket" << std::endl;
-		// 	socket.read_socket();
-
-		// 	std::cout << "Writing to socket" << std::endl;
-		// 	std::ifstream file("website/default.html");
-		// 	std::stringstream buffer;
-		// 	buffer << file.rdbuf();
-		// 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
-		// 	socket.write_socket(response);
-
-		// 	std::cout << "Sending response" << std::endl;
-		// 	if (socket.send_response() == EXIT_FAILURE)
-		// 		continue;
-			
-		// 	std::cout << "Closing socket" << std::endl;
-		// 	socket.close_socket();
-		// }
+		
+		if (socket.start_server() == EXIT_FAILURE)
+			return EXIT_FAILURE;
 
 		while (true)
 		{
-			while (socket.poll_loop() == EXIT_FAILURE)
-				continue;
-			std::cout << "Reading from socket" << std::endl;
-			socket.read_socket();
-			
-			std::cout << "Writing to socket" << std::endl;
-			std::ifstream file("website/default.html");
+			socket.poll_loop();
+
+			std::cout << "Accepting connection" << std::endl;
+			socket.accept_connection();
+
+			// std::cout << "Reading from socket" << std::endl;
+			// socket.read_socket();
+
+			std::cout << "Sending response" << std::endl;
+			std::ifstream file("default.html");
 			std::stringstream buffer;
 			buffer << file.rdbuf();
 			std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
-			socket.write_socket(response);
-
-			std::cout << "Sending response" << std::endl;
-			if (socket.send_response() == EXIT_FAILURE)
-				continue;
+			socket.send_response(response);
 
 			std::cout << "Closing socket" << std::endl;
-			socket.close_socket();
+			socket.close_socket_client();
 		}
-		
+		std::cout << "Closing server" << std::endl;
+		socket.close_socket_server();
 
 		return 0;
 	}

@@ -63,9 +63,10 @@ class Socket
 
 		int accept_connection(); //returns new socket
 		int read_socket(); //returns valread
-		int write_socket(std::string str); //returns valread
-		int send_response(); //returns valread
-		int close_socket(); //
+		// int write_socket(std::string str); //returns valread
+		int send_response(std::string str); //returns valread
+		int close_socket_client();
+		int close_socket_server();
 
 		int poll_socket();
 		int poll_loop();

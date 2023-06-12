@@ -50,12 +50,13 @@ int Socket::socket_fd(){
 		return EXIT_FAILURE;
 	}
 	this->_socket_server_fd = serverSocket;
-	fcntl(this->_socket_server_fd, F_SETFL, O_NONBLOCK); // set socket to non-blocking
+	// fcntl(this->_socket_server_fd, F_SETFL, O_NONBLOCK); // set socket to non-blocking
 	return EXIT_SUCCESS;
 }
 
 int Socket::address_socket(){
 	this->_address.sin_family = AF_INET;
+	// this->_address.sin_addr.s_addr = INADDR_ANY;
 	this->_address.sin_addr.s_addr = inet_addr(this->_host.c_str());// need to check host assignment!!!
 	this->_address.sin_port = htons(this->_port);
 	memset(this->_address.sin_zero, '\0', sizeof(this->_address.sin_zero));
@@ -116,8 +117,17 @@ int Socket::read_socket(){
 	return valread;
 }
 
-int Socket::write_socket(std::string str){
-	int valwrite = write(this->_socket_client_fd, str.c_str(), str.length());
+// int Socket::write_socket(std::string str){
+// 	int valwrite = write(this->_socket_client_fd, str.c_str(), str.length());
+// 	if (valwrite < 0) {
+// 		std::cerr << "Failed to write to socket" << std::endl;
+// 		return EXIT_FAILURE;
+// 	}
+// 	return valwrite;
+// }
+
+int Socket::send_response(std::string str){
+	int valwrite = send(this->_socket_client_fd, str.c_str(), str.length(), 0);
 	if (valwrite < 0) {
 		std::cerr << "Failed to write to socket" << std::endl;
 		return EXIT_FAILURE;
@@ -125,19 +135,17 @@ int Socket::write_socket(std::string str){
 	return valwrite;
 }
 
-int Socket::send_response(){
-	if (send(this->_socket_client_fd, this->_buffer, BUFFER_SIZE, 0) == -1) {
-		std::cerr << "Failed to send response" << std::endl;
-		return EXIT_FAILURE;
-	}
+
+int Socket::close_socket_client(){
+	close(this->_socket_client_fd);
 	return EXIT_SUCCESS;
 }
 
-
-int Socket::close_socket(){
+int Socket::close_socket_server(){
 	close(this->_socket_server_fd);
 	return EXIT_SUCCESS;
 }
+
 
 int Socket::poll_socket(){
 	struct pollfd fds[1];
