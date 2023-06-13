@@ -1,6 +1,7 @@
 #include "../includes/config.hpp"
 #include "../includes/webserver.hpp"
 #include "../includes/socket.hpp"
+#include "../includes/methods.hpp"
 
 int	main(int argc, char *argv[])
 {
@@ -35,11 +36,13 @@ int	main(int argc, char *argv[])
 			
 			if (socket.read_socket() != EXIT_FAILURE)
 			{
+				std::cout << "Request received" << std::endl;
 				std::string request = socket.get_buffer();
 
 				// Check the type of request
 				if (request.substr(0, 3) == "GET")
 				{
+					std::cout << "GET request received" << std::endl;
 					// Extract the path from the request
 					std::string path = request.substr(4, request.find(" ", 4) - 4);
 
@@ -61,20 +64,22 @@ int	main(int argc, char *argv[])
 						socket.send_response(response);
 					}
 				}
-				else if (request.substr(0, 3) == "ADD")
+				else if (request.substr(0, 3) == "POST")
 				{
+					std::cout << "POST request received" << std::endl;
 					// Extract the data to be added from the request
-					std::string data = request.substr(4);
+					std::string data = request.substr(5);
 
-					std::cout << "Processing ADD request with data: " << data << std::endl;
+					std::cout << "Processing POST request with data: " << data << std::endl;
 
 					// Implement the logic to add the data
-
+					performPostRequest(socket.get_host(), "/", data);
 					std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nData added successfully";
 					socket.send_response(response);
 				}
 				else if (request.substr(0, 6) == "DELETE")
 				{
+					std::cout << "DELETE request received" << std::endl;
 					// Extract the data to be deleted from the request
 					std::string data = request.substr(7);
 
@@ -92,19 +97,19 @@ int	main(int argc, char *argv[])
 					socket.send_response(response);
 				}
 			}
-			std::cout << "Sending response" << std::endl;
-			std::ifstream file("default.html");
-			std::stringstream buffer;
-			buffer << file.rdbuf();
-			std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
-			socket.send_response(response);
+			// std::cout << "Sending response" << std::endl;
+			// std::ifstream file("default.html");
+			// std::stringstream buffer;
+			// buffer << file.rdbuf();
+			// std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + buffer.str();
+			// socket.send_response(response);
 
 			std::cout << "Closing socket" << std::endl;
 			socket.close_socket_client();
+			sleep(1);
 		}
 		std::cout << "Closing server" << std::endl;
 		socket.close_socket_server();
-
 		return 0;
 	}
 

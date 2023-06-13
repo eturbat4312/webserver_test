@@ -28,7 +28,7 @@ struct sockaddr_in Socket::get_address(){
 }
 
 char *Socket::get_buffer(){
-	return static_cast<char *>(this->_buffer);
+	return this->_buffer_char;
 }
 
 void Socket::set_socket_fd(int socket_fd){
@@ -96,6 +96,7 @@ int Socket::start_server(){
 	if (listen_socket() == EXIT_FAILURE)
 		return EXIT_FAILURE;
 	std::cout << "Socket listening" << std::endl;
+	fcntl(this->_socket_server_fd, F_SETFL, O_NONBLOCK); // set socket to non-blocking
 	return EXIT_SUCCESS;
 }
 
@@ -109,15 +110,20 @@ int Socket::accept_connection() {
 		return EXIT_FAILURE;
     }
     this->_socket_client_fd = _socket_client_fd;
+	fcntl(this->_socket_client_fd, F_SETFL, O_NONBLOCK); // set socket to non-blocking
     return EXIT_SUCCESS;
 }
 
 int Socket::read_socket(){
-	int valread = read(this->_socket_client_fd, this->_buffer, BUFFER_SIZE);
+	char tmp[BUFFER_SIZE];
+	int valread = recv(this->_socket_client_fd, tmp, BUFFER_SIZE, 0);
 	if (valread < 0) {
-		std::cerr << "Failed to read from socket" << std::endl;
+        std::cerr << "Failed to read from socket. Error code: " << errno << std::endl;
 		return EXIT_FAILURE;
 	}
+	// printf("TMP \n%s\n", tmp);
+	this->_buffer_char = tmp;
+	// printf("BUFFER \n%s\n", this->_buffer_char);
 	return valread;
 }
 

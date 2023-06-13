@@ -39,6 +39,7 @@ class Socket
 		struct sockaddr_in _address;
 
 		void *_buffer;
+		char * _buffer_char;
 
 	public:
 		Socket();
